@@ -422,7 +422,7 @@ class GeminiAnalyzer:
     "search_performed": true/false,
     "data_sources": "数据来源说明"
 }"""
-      def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None):
         """
         初始化 AI 分析器
         
