@@ -1270,3 +1270,66 @@ if __name__ == "__main__":
         print(f"分析结果: {result.to_dict()}")
     else:
         print("Gemini API 未配置，跳过测试")
+
+
+
+
+
+
+# ============= 新增 DeepSeek 支援（2026-03-14 添加）=============
+import requests
+import os
+
+def analyze_with_deepseek(prompt, stock_code=""):
+    """
+    使用 DeepSeek 分析股票（新增功能，不影響原Gemini）
+    """
+    api_key = os.environ.get('DEEPSEEK_API_KEY')
+    if not api_key:
+        print("錯誤: 沒有設置 DEEPSEEK_API_KEY")
+        return None
+    
+    url = "https://api.deepseek.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "model": "deepseek-chat",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3,
+        "max_tokens": 2000
+    }
+    
+    try:
+        print(f"正在使用 DeepSeek 分析 {stock_code}...")
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        if response.status_code == 200:
+            result = response.json()
+            return result['choices'][0]['message']['content']
+        else:
+            print(f"DeepSeek API錯誤: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"DeepSeek調用失敗: {e}")
+        return None
+
+def analyze_with_ai(prompt, stock_code="", use_deepseek=True):
+    """
+    智能選擇使用哪個AI引擎
+    use_deepseek=True 使用DeepSeek
+    use_deepseek=False 使用原來的Gemini
+    """
+    if use_deepseek:
+        print("使用 DeepSeek 分析...")
+        return analyze_with_deepseek(prompt, stock_code)
+    else:
+        print("使用 Gemini 分析...")
+        # 這裡調用原來的Gemini函數
+        if 'analyze_stock' in dir():  # 假設原函數叫analyze_stock
+            return analyze_stock(prompt, stock_code)
+        else:
+            print("Gemini函數不存在，請檢查原函數名")
+            return None
+# ============= DeepSeek 添加結束 =============
